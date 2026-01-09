@@ -1,0 +1,25 @@
+# Environment
+.env
+.env.*
+
+# Composer
+/vendor/
+
+# Logs & runtime files
+/storage/logs/*
+/storage/exports/*
+
+# Cache / temp
+*.log
+*.cache
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# PHPUnit
+.phpunit.result.cache
