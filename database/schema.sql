@@ -1,93 +1,55 @@
-CREATE TABLE users (
-    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    uuid CHAR(36) NOT NULL UNIQUE,
-    
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(150) NOT NULL UNIQUE,
-    password_hash VARCHAR(255) NOT NULL,
+-- Secure Personal Finance Manager Schema
 
-    is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+CREATE TABLE users (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
 
 CREATE TABLE accounts (
-    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    uuid CHAR(36) NOT NULL UNIQUE,
-
-    user_id BIGINT UNSIGNED NOT NULL,
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NOT NULL,
     name VARCHAR(100) NOT NULL,
     type ENUM('bank','cash','wallet','crypto') NOT NULL,
-
-    balance_encrypted TEXT NOT NULL,
-    currency CHAR(3) DEFAULT 'INR',
-
+    balance_encrypted VARBINARY(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
+    CONSTRAINT fk_accounts_user
+        FOREIGN KEY (user_id) REFERENCES users(id)
+        ON DELETE CASCADE,
 
-CREATE TABLE categories (
-    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    user_id BIGINT UNSIGNED NOT NULL,
-
-    name VARCHAR(100) NOT NULL,
-    type ENUM('income','expense') NOT NUL,
-
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
+    INDEX idx_accounts_user (user_id)
+) ENGINE=InnoDB;
 
 CREATE TABLE transactions (
-    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    uuid CHAR(36) NOT NULL UNIQUE,
-
-    account_id BIGINT UNSIGNED NOT NULL,
-    category_id BIGINT UNSIGNED NOT NULL,
-
-    amount_encrypted TEXT NOT NULL,
-    type ENUM('income','expense') NOT NULL,
-
-    description VARCHAR(255),
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    account_id INT UNSIGNED NOT NULL,
+    category VARCHAR(100) NOT NULL,
+    amount_encrypted VARBINARY(255) NOT NULL,
+    note VARCHAR(255) NULL,
     transaction_date DATE NOT NULL,
-
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (account_id) REFERENCES accounts(id)
+    CONSTRAINT fk_transactions_account
+        FOREIGN KEY (account_id) REFERENCES accounts(id)
         ON DELETE CASCADE,
-    FOREIGN KEY (category_id) REFERENCES categories(id)
-);
+
+    INDEX idx_transactions_account (account_id),
+    INDEX idx_transactions_date (transaction_date)
+) ENGINE=InnoDB;
 
 CREATE TABLE budgets (
-    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    user_id BIGINT UNSIGNED NOT NULL,
-    category_id BIGINT UNSIGNED NOT NULL,
-
-    monthly_limit_encrypted TEXT NOT NULL,
-    month_year CHAR(7) NOT NULL, -- YYYY-MM
-
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NOT NULL,
+    category VARCHAR(100) NOT NULL,
+    limit_amount_encrypted VARBINARY(255) NOT NULL,
+    month_year CHAR(7) NOT NULL, -- Format: YYYY-MM
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (category_id) REFERENCES categories(id)
-);
+    CONSTRAINT fk_budgets_user
+        FOREIGN KEY (user_id) REFERENCES users(id)
+        ON DELETE CASCADE,
 
-CREATE TABLE audit_logs (
-    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    user_id BIGINT UNSIGNED NOT NULL,
-
-    action VARCHAR(100) NOT NULL,
-    ip_address VARCHAR(45),
-    user_agent TEXT,
-
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    FOREIGN KEY (user_id) REFERENCES users(id)
-        ON DELETE CASCADE
-);
-
-CREATE INDEX idx_transactions_account ON transactions(account_id);
-CREATE INDEX idx_transactions_date ON transactions(transaction_date);
-CREATE INDEX idx_accounts_user ON accounts(user_id);
-CREATE INDEX idx_budgets_user_month ON budgets(user_id, month_year);
+    UNIQUE KEY uniq_user_category_month (user_id, category, month_year)
+) ENGINE=InnoDB;
