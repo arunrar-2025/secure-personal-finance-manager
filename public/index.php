@@ -4,5 +4,6 @@
     require_once __DIR__ . '/../app/config/security.php';
     require_once __DIR__ . '/../app/models/User.php';
     require_once __DIR__ . '/../app/models/Account.php';
+    require_once __DIR__ . '/../app/models/Transaction.php';
 
     loadEnv(__DIR__ . '/../.env');
