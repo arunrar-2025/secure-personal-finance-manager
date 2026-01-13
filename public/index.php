@@ -11,6 +11,7 @@
 
     loadEnv(__DIR__ . '/../.env');
 
-    var_dump(Validator::email("test@example.com"));
-    var_dump(Validator::amount("123.45"));
-    var_dump(Validator::date("2026-01-10"));
+    session_start();
+    require_once __DIR__ . '/../app/core/Auth.php';
+
+    
