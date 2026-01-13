@@ -6,13 +6,6 @@
     require_once __DIR__ . '/../app/models/Account.php';
     require_once __DIR__ . '/../app/models/Transaction.php';
     require_once __DIR__ . '/../app/core/Encryption.php';
+    require_once __DIR__ . '/../app/services/TransactionService.php';
 
     loadEnv(__DIR__ . '/../.env');
-
-    $enc = new Encryption();
-
-    $test = "12345.67";
-    $encrypted = $enc->encrypt($test);
-    $decrypted = $enc->decrypt($encrypted);
-
-    echo $decrypted;
