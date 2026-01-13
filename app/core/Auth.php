@@ -28,6 +28,8 @@
             // Session hardening
             session_regenerate_id(true);
 
+            unset($_SESSION['csrf_token']);
+
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['last_activity'] = time();
 
@@ -59,5 +61,23 @@
         public function userId(): ?int
         {
             return $_SESSION['user_id'] ?? null;
+        }
+
+        public function generateCSRFToken(): string
+        {
+            if (empty($_SESSION['csrf_token'])) {
+                $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+            }
+
+            return $_SESSION['csrf_token'];
+        }
+
+        public function verifyCSRFToken(string $token): bool
+        {
+            if (!isset($_SESSION['csrf_token'])) {
+                return false;
+            }
+
+            return hash_equals($_SESSION['csrf_token'], $token);
         }
     }
