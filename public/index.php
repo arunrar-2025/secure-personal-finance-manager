@@ -23,8 +23,19 @@ $route = $_GET['route'] ?? 'home';
 switch ($route) {
 
     case 'login':
-        // placeholder response
-        echo "Login endpoint";
+        require __DIR__ . '/../app/views/login.php';
+        break;
+
+    case 'login_submit':
+        $email = $_POST['email'] ?? '';
+        $password = $_POST['password'] ?? '';
+
+        if ($auth->login($email, $password)) {
+            header("Location: ?route=dashboard");
+            exit;
+        } else {
+            echo "Login failed";
+        }
         break;
 
     case 'dashboard':
@@ -32,15 +43,16 @@ switch ($route) {
             echo "Unauthorized";
             exit;
         }
-        echo "Dashboard endpoint";
+        require __DIR__ . '/../app/views/dashboard.php';
         break;
 
     case 'logout':
         $auth->logout();
-        echo "Logged out";
-        break;
+        header("Location: ?route=home");
+        exit;
 
+    case 'home':
     default:
-        echo "Home endpoint";
+        require __DIR__ . '/../app/views/home.php';
         break;
 }
