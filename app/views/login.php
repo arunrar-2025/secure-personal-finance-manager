@@ -1,5 +1,6 @@
 <?php
     // app/views/login.php
+    require __DIR__ . '/layout/header.php';
 ?>
 <h1>Login</h1>
 
@@ -12,3 +13,7 @@
 
     <button type="submit">Login</button>
 </form>
+
+<?php
+    require __DIR__ . '/layout/footer.php';
+?>
