@@ -3,14 +3,17 @@
 
     require_once __DIR__ . '/../models/User.php';
     require_once __DIR__ . '/../config/security.php';
+    require_once __DIR__ . '/../services/LogService.php';
 
     class Auth
     {
         private User $userModel;
+        private LogService $logger;
 
         public function __construct()
         {
             $this->userModel = new User();
+            $this->logger = new LogService();
         }
 
         public function login(string $email, string $password): bool
@@ -18,10 +21,12 @@
             $user = $this->userModel->findByEmail($email);
 
             if (!$user) {
+                $this->logger->write("Failed login attempt for {$email}");
                 return false;
             }
 
             if (!password_verify($password, $user['password_hash'])) {
+                $this->logger->write("Failed login attempt for {$email}");
                 return false;
             }
 
@@ -33,12 +38,15 @@
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['last_activity'] = time();
 
+            $this->logger->write("User {$user['email']} logged in.");
+
             return true;
         }
 
         public function logout(): void
         {
             session_unset();
+            $this->logger->write("User logged out.");
             session_destroy();
         }
 
