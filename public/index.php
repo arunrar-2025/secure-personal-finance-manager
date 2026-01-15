@@ -51,6 +51,38 @@ switch ($route) {
         header("Location: ?route=home");
         exit;
 
+    case 'transactions':
+        if (!$auth->check()) {
+            echo "Unauthorized";
+            exit;
+        }
+        require __DIR__ . '/../app/views/transactions.php';
+        break;
+
+    case 'reports':
+        if (!$auth->check()) {
+            echo "Unauthorized";
+            exit;
+        }
+        require __DIR__ . '/../app/views/reports.php';
+        break;
+
+    case 'accounts':
+        if (!$auth->check()) {
+            echo "Unauthorized";
+            exit;
+        }
+        require __DIR__ . '/../app/views/accounts.php';
+        break;
+
+    case 'budgets':
+        if (!$auth->check()) {
+            echo "Unauthorized";
+            exit;
+        }
+        require __DIR__ . '/../app/views/budgets.php';
+        break;
+
     case 'home':
     default:
         require __DIR__ . '/../app/views/home.php';
