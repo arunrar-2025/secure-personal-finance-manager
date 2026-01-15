@@ -72,6 +72,38 @@ switch ($route) {
             echo "Unauthorized";
             exit;
         }
+
+        require_once __DIR__ . '/../app/models/Account.php';
+        require_once __DIR__ . '/../app/core/Encryption.php';
+
+        $accountModel = new Account();
+        $encryption = new Encryption();
+        $userId = $auth->userId();
+
+        // Handle form submission
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $name = trim($_POST['name'] ?? '');
+            $type = $_POST['type'] ?? '';
+            $balancePlain = trim($_POST['balance'] ?? '');
+
+            if ($name && $type && $balancePlain !== '') {
+                $balanceEncrypted = $encryption->encrypt($balancePlain);
+                $accountModel->create($userId, $name, $type, $balanceEncrypted);
+            }
+
+            header("Location: ?route=accounts");
+            exit;
+        }
+
+        // Fetch accounts
+        $accountsRaw = $accountModel->findByUser($userId);
+        $accounts = [];
+
+        foreach ($accountsRaw as $acc) {
+            $acc['balance'] = $encryption->decrypt($acc['balance_encrypted']);
+            $accounts[] = $acc;
+        }
+
         require __DIR__ . '/../app/views/accounts.php';
         break;
 
