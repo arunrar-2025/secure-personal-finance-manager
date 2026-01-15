@@ -56,6 +56,43 @@ switch ($route) {
             echo "Unauthorized";
             exit;
         }
+        
+        require_once __DIR__ . '/../app/models/Account.php';
+        require_once __DIR__ . '/../app/services/TransactionService.php';
+
+        $userId = $auth->userId();
+
+        $accountModel = new Account();
+        $transactionService = new TransactionService();
+
+        // Fetch accounts for dropdown
+        $accounts = $accountModel->findByUser($userId);
+
+        // Selected account
+        $selectedAccountId = $_GET['account'] ?? ($accounts[0]['id'] ?? null);
+
+        // Handle new transaction submission
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $accountId = (int)($_POST['account_id'] ?? 0);
+            $category = trim($_POST['category'] ?? '');
+            $amount = trim($_POST['amount'] ?? '');
+            $note = trim($_POST['note'] ?? '');
+            $date = $_POST['date'] ?? date('Y-m-d');
+
+            if ($accountId && $category && $amount !== '') {
+                $transactionService->addTransaction($accountId, $category, $amount, $note, $date);
+            }
+
+            header("Location: ?route=transactions&account=" . $accountId);
+            exit;
+        }
+
+        // Fetch transactions for selected account
+        $transactions = [];
+        if ($selectedAccountId) {
+            $transactions = $transactionService->getTransactionsByAccount((int)$selectedAccountId);
+        }
+
         require __DIR__ . '/../app/views/transactions.php';
         break;
 
