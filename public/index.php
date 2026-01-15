@@ -149,6 +149,59 @@ switch ($route) {
             echo "Unauthorized";
             exit;
         }
+        
+        require_once __DIR__ . '/../app/models/Budget.php';
+        require_once __DIR__ . '/../app/models/Account.php';
+        require_once __DIR__ . '/../app/core/Encryption.php';
+        require_once __DIR__ . '/../app/services/BudgetService.php';
+
+        $userId = $auth->userId();
+
+        $budgetModel = new Budget();
+        $accountModel = new Account();
+        $encryption = new Encryption();
+        $budgetService = new BudgetService();
+
+        // For simplicity, use first account for budget calculations
+        $accounts = $accountModel->findByUser($userId);
+        $accountId = $accounts[0]['id'] ?? null;
+
+        $monthYear = $_GET['month'] ?? date('Y-m');
+
+        // Handle new budget submission
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $category = trim($_POST['category'] ?? '');
+            $limitPlain = trim($_POST['limit'] ?? '');
+
+            if ($category && $limitPlain !== '') {
+                $limitEncrypted = $encryption->encrypt($limitPlain);
+                $budgetModel->create($userId, $category, $limitEncrypted, $monthYear);
+            }
+
+            header("Location: ?route=budgets&month=" . $monthYear);
+            exit;
+        }
+
+        // Fetch budgets
+        $budgetsRaw = $budgetModel->findByUserAndMonth($userId, $monthYear);
+        $budgets = [];
+
+        foreach ($budgetsRaw as $b) {
+            $limitPlain = (float)$encryption->decrypt($b['limit_amount_encrypted']);
+            $spent = 0.0;
+
+            if ($accountId) {
+                $spent = $budgetService->calculateMonthlyCategoryTotal($accountId, $b['category'], $monthYear);
+            }
+
+            $budgets[] = [
+                'category' => $b['category'],
+                'limit' => $limitPlain,
+                'spent' => $spent,
+                'over' => $spent > $limitPlain
+            ];
+        }
+
         require __DIR__ . '/../app/views/budgets.php';
         break;
 
