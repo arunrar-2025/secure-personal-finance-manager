@@ -17,15 +17,42 @@
 
         public function addTransaction(int $accountId, string $category, string $amountPlain, string $note, string $transactionDate): bool
         {
+            // Encrypt and store transaction
             $amountEncrypted = $this->encryption->encrypt($amountPlain);
 
-            return $this->transactionModel->create(
+            $success = $this->transactionModel->create(
                 $accountId,
                 $category,
                 $amountEncrypted,
                 $note,
                 $transactionDate
             );
+
+            if (!$success) {
+                return false;
+            }
+
+            // --- Update account balance ---
+            require_once __DIR__ . '/../models/Account.php';
+            $accountModel = new Account();
+
+            $account = $accountModel->findById($accountId);
+            if (!$account) {
+                return false;
+            }
+
+            // Decrypt current balance
+            $currentBalance = (float)$this->encryption->decrypt($account['balance_encrypted']);
+
+            // Apply transaction amount
+            $newBalance = $currentBalance + (float)$amountPlain;
+
+            // Encrypt new balance
+            $newBalanceEncrypted = $this->encryption->encrypt((string)$newBalance);
+
+            // Update account balance in database
+            return $accountModel->updateBalance($accountId, $newBalanceEncrypted);
+
         }
 
         public function getTransactionsByAccount(int $accountId): array
