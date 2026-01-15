@@ -1,19 +1,21 @@
-<?php
-    // app/views/login.php
-    require __DIR__ . '/layout/header.php';
-?>
-<h1>Login</h1>
+<?php require __DIR__ . '/layout/header.php'; ?>
 
-<form method="post" action="?route=login_submit">
-    <label>Email:</label><br>
-    <input type="email" name="email" required><br><br>
+<div class="row justify-content-center">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                
+                <h4 class="card-title mb-3">Login</h4>
 
-    <label>Password:</label><br>
-    <input type="password" name="password" required><br><br>
+                <form method="post" action="?route=login_submit">
+                    <input class="form-control mb-2" type="email" name="email" placeholder="Email" required>
+                    <input class="form-control mb-3" type="password" name="password" placeholder="Password" required>
+                    <button class="btn btn-primary w-100">Login</button>
+                </form>
 
-    <button type="submit">Login</button>
-</form>
+            </div>
+        </div>
+    </div>
+</div>
 
-<?php
-    require __DIR__ . '/layout/footer.php';
-?>
+<?php require __DIR__ . '/layout/footer.php'; ?>
