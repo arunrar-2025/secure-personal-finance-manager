@@ -6,3 +6,7 @@ body {
 .container {
     margin-top: 50px
 }
+
+.card {
+    border-radius: 10px;
+}
