@@ -14,7 +14,7 @@
 
         public function create(int $userId, string $name, string $type, string $balanceEncrypted): bool
         {
-            $sql = "INSERT INTO accounts (user_id, name, type, balance_encrypted) VALUES (:user_id, :name, :type, :balance_encrypted";
+            $sql = "INSERT INTO accounts (user_id, name, type, balance_encrypted) VALUES (:user_id, :name, :type, :balance_encrypted)";
 
             $stmt = $this->pdo->prepare($sql);
 
