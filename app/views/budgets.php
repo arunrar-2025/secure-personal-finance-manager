@@ -1,6 +1,6 @@
 <?php require __DIR__ . '/layout/header.php'; ?>
 
-<h2 class="mb-4">Budgets (<?= htmlspecialchars($monthYear) ?></h2>
+<h2 class="mb-4">Budgets (<?= htmlspecialchars($monthYear) ?>)</h2>
 
 <!-- Add Budget -->
 <div class="card mb-4">
