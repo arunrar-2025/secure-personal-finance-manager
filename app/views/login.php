@@ -11,6 +11,9 @@
                     <input class="form-control mb-3" type="email" name="email" placeholder="Email" required>
                     <input class="form-control mb-4" type="password" name="password" placeholder="Password" required>
                     <button class="btn btn-primary w-100">Login</button>
+                    <p class="mt-3 text-center">
+                        No account? <a href="?route=register">Register here</a>
+                    </p>
                 </form>
                 
             </div>

@@ -250,6 +250,47 @@ switch ($route) {
         require __DIR__ . '/../app/views/budgets.php';
         break;
 
+    case 'register':
+        require __DIR__ . '/../app/views/register.php';
+        break;
+
+    case 'register_submit':
+
+        require_once __DIR__ . '/../app/models/User.php';
+
+        $email = trim($_POST['email'] ?? '');
+        $password = $_POST['password'] ?? '';
+        $confirm = $_POST['confirm_password'] ?? '';
+
+        if (!$email || !$password || !$confirm) {
+            setFlash("All fields are required.", "danger");
+            header("Location: ?route=register");
+            exit;
+        }
+
+        if ($password !== $confirm) {
+            setFlash("Passwords do not match.", "danger");
+            header("Location: ?route=register");
+            exit;
+        }
+
+        $userModel = new User();
+
+        // Check if email already exists
+        if ($userModel->findByEmail($email)) {
+            setFlash("Email already registered.", "warning");
+            header("Location: ?route=register");
+            exit;
+        }
+
+        // Create user
+        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+        $userModel->create($email, $passwordHash);
+
+        setFlash("Registration successful. You can log in now.", "success");
+        header("Location: ?route=login");
+        exit;
+
     case 'home':
     default:
         require __DIR__ . '/../app/views/home.php';
