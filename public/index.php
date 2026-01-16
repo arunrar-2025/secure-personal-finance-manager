@@ -101,6 +101,30 @@ switch ($route) {
             echo "Unauthorized";
             exit;
         }
+        
+        require_once __DIR__ . '/../app/services/ReportService.php';
+        require_once __DIR__ . '/../app/models/Account.php';
+
+        $userId = $auth->userId();
+        $reportService = new ReportService();
+        $accountModel = new Account();
+
+        // Use first account for reports
+        $accounts = $accountModel->findByUser($userId);
+        if (empty($accounts)) {
+            echo "Please create an account first.";
+            exit;
+        }
+
+        $accountId = $accounts[0]['id'];
+
+        // Month selector
+        $monthYear = $_GET['month'] ?? date('Y-m');
+
+        // Generate reports
+        $summary = $reportService->getMonthlySummary($accountId, $monthYear);
+        $categories = $reportService->getCategoryBreakdown($accountId, $monthYear);
+
         require __DIR__ . '/../app/views/reports.php';
         break;
 
