@@ -15,6 +15,19 @@ require_once __DIR__ . '/../app/services/BudgetService.php';
 
 session_start();
 
+function setFlash(string $message, string $type = 'info'): void
+{
+    $_SESSION['flash'] = ['message' => $message, 'type' => $type];
+}
+
+function getFlash(): ?array
+{
+    if (!isset($_SESSION['flash'])) return null;
+    $flash = $_SESSION['flash'];
+    unset($_SESSION['flash']);
+    return $flash;
+}
+
 $auth = new Auth();
 
 // Basic routing via ?route=
@@ -34,13 +47,16 @@ switch ($route) {
             header("Location: ?route=dashboard");
             exit;
         } else {
-            echo "Login failed";
+            setFlash("Invalid email or password.", "danger");
+            header("Location: ?route=login");
+            exit;
         }
         break;
 
     case 'dashboard':
         if (!$auth->check()) {
-            echo "Unauthorized";
+            setFlash("You must log in to access that page.", "danger");
+            header("Location: ?route=login");
             exit;
         }
         require __DIR__ . '/../app/views/dashboard.php';
@@ -53,7 +69,8 @@ switch ($route) {
 
     case 'transactions':
         if (!$auth->check()) {
-            echo "Unauthorized";
+            setFlash("You must log in to access that page.", "danger");
+            header("Location: ?route=login");
             exit;
         }
         
@@ -98,7 +115,8 @@ switch ($route) {
 
     case 'reports':
         if (!$auth->check()) {
-            echo "Unauthorized";
+            setFlash("You must log in to access that page.", "danger");
+            header("Location: ?route=login");
             exit;
         }
         
@@ -112,7 +130,8 @@ switch ($route) {
         // Use first account for reports
         $accounts = $accountModel->findByUser($userId);
         if (empty($accounts)) {
-            echo "Please create an account first.";
+            setFlash("Create at least one account before using this feature.", "warning");
+            header("Location: ?route=accounts");
             exit;
         }
 
@@ -130,7 +149,8 @@ switch ($route) {
 
     case 'accounts':
         if (!$auth->check()) {
-            echo "Unauthorized";
+            setFlash("You must log in to access that page.", "danger");
+            header("Location: ?route=login");
             exit;
         }
 
@@ -170,7 +190,8 @@ switch ($route) {
 
     case 'budgets':
         if (!$auth->check()) {
-            echo "Unauthorized";
+            setFlash("You must log in to access that page.", "danger");
+            header("Location: ?route=login");
             exit;
         }
         

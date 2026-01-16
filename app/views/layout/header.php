@@ -17,3 +17,8 @@
             </div>
         </nav>
         <div class="container">
+            <?php if ($flash = getFlash()): ?>
+                <div class="alert alert-<?= htmlspecialchars($flash['type']) ?> mt-3">
+                    <?= htmlspecialchars($flash['message']) ?>
+                </div>
+            <?php endif; ?>
